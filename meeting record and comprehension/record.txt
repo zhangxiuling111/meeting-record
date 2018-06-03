@@ -1,0 +1,28 @@
+2018-05-24 会议记录
+1、跑一跑《model checking paxos in spin》中实现的代码，争取理解透。
+2、把已经看了的《model checking paxos in spin》和《paxos made simple》多看两遍，吃透里面的内容。
+3、新看两篇论文《a simpler proof for paxos and fast paxos》和《a simple totally ordered broadcast protocol》
+
+2018-06-01 会议记录
+1、搜索raft算法并了解（很多数据库分布在不同地方，update其中一个，则必须所有的数据库都同步更新。但如果两个地方的数据库同时在更新，
+并且更新的是同一个部分的话，则很有可能会产生冲突，所以必须设置一个log，使所有数据库的改动顺序保持一致。）
+
+2、了解 leader election
+已有产品实现了paxos.由于paxos会产生活锁（即当number为n1的proposal收到足够的promise后，向acceptor发送accept请求时，
+该acceptor又收到number为n2的proposal的prepare请求，而n2>n1,则acceptor不再接收n1的proposal;而当n2收集到足够的promise,
+向acceptor发送accept请求时，又出现更大的number n3 的proposal的prepare请求；以此往复，则一直不会有proposal被选中，但程序也不会block.）
+则需要通过一个leader election算法来选举一个leader proposer，使得只有他能够发送proposal,则可以避免在value chosen 过程中活锁的产生，
+但leader election本身也是一个分布式算法，则也可能在选取leader的过程中产生活锁。
+
+3、避免livelock:
+a、时间因素：设置一个合适的timeout值，若proposer发送的请求过了指定时间值以后仍然没有收到回应，则proposer重新生成新的proposal.
+b、概率因素：在一定范围内，随机决定timeout的值
+
+ 
+3、加深对已有各种算法的了解
+
+4、把自己对着些算法的理解，以综述的方式写下来
+ 
+5、建一个完整的model,大概方向
+a、把所有已有算法的利弊讨论清楚，并在此基础上做出自己的优化。
+b、讨论相对其他算法paxos的优点，并实现paxos

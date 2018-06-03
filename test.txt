@@ -1,4 +1,0 @@
-2018-05-24 会议记录
-1、跑一跑《model checking paxos in spin》中实现的代码，争取理解透。
-2、把已经看了的《model checking paxos in spin》和《paxos made simple》多看两遍，吃透里面的内容。
-3、新看两篇论文《a simpler proof for paxos and fast paxos》和《a simple totally ordered broadcast protocol》

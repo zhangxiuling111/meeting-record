@@ -141,4 +141,3 @@ init
    	run acceptor(i);
    }
   }
-}
