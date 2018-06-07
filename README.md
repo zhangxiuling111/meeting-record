@@ -30,6 +30,6 @@ A few implemented versions of Paxos must be modified or adapted in their particu
 
 Manual inspection and pen-and-paper analysis of a given protocol is always used. We also intend to apply model checking (such as in the tool SPIN http://spinroot.com/) to verify invariants and properties specified in temporal logics.
 
-#### Other related interesting works
+#### Other related interesting research directions
 
 Time-out setting and randomness are weapons against nondeterminism and aysnchrony. We plan to investigate the effectiveness of these factors used in consensus protocol design.
