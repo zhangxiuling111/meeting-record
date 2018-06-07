@@ -3,10 +3,10 @@
 #### The starting point
 Our starting point is Lamport's Paxos algorithm, which provides a textbook description on distributed consensus problem. The basic Paxos protocol solves simple consensus, i.e., to let multiple servers agree on a single value in asynchronous settings. Multi-Paxos can be used to solve the problem of how to maintain a replicated state machine, in the way that multiple servers agree on the same log of actions or events. In an asynchronous setting a message can take arbitrarily long to be delivered, can be duplicated and can be lost.
 
-#### Basic Paxos has three distinguished roles
+#### Basic Paxos has three distinct roles
 - Proposers who propose values in parallel
 - Acceptors who accept or vote for the values proposed by the proposers
-- Learners who observes the chosen value which is agreed by a majority of the acceptors
+- Learners who observes the chosen value which is agreed by a majority (or a quorum) of the acceptors
 
 With possibilities of only non-Byzantine failures (i.e., a server operate at arbitrary speed, it may honestly crash, and may re-start after breaking down, but it cannot act maliciously by e.g., faking a message), basic Paxos maintains safety with failures of up to n acceptors (n is also known as the size of a quorum) in a 2n+1 acceptors setting.
 
@@ -28,8 +28,8 @@ A few implemented versions of Paxos must be modified or adapted in their particu
 
 #### Our methodologies
 
-Manual analysis of a given protocol is always used. We also intend to apply model checking (such as in the tool SPIN http://spinroot.com/) to verify invariants and properties specified in temporal logics.
+Manual inspection and pen-and-paper analysis of a given protocol is always used. We also intend to apply model checking (such as in the tool SPIN http://spinroot.com/) to verify invariants and properties specified in temporal logics.
 
 #### Other related interesting works
 
-To continue ...
+Time-out setting and randomness are weapons against nondeterminism and aysnchrony. We plan to investigate the effectiveness of these factors used in consensus protocol design.
