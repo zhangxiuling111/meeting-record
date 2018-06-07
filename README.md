@@ -1,4 +1,4 @@
-## Consensus problems in distributed protocol
+## Consensus problems in distributed protocols
 
 #### The starting point
 Our starting point is Lamport's Paxos algorithm, which provides a textbook description on distributed consensus problem. The basic Paxos protocol solves simple consensus, i.e., to let multiple servers agree on a single value in asynchronous settings. Multi-Paxos can be used to solve the problem of how to maintain a replicated state machine, in the way that multiple servers agree on the same log of actions or events. In an asynchronous setting a message can take arbitrarily long to be delivered, can be duplicated and can be lost.
@@ -28,8 +28,8 @@ A few implemented versions of Paxos must be modified or adapted in their particu
 
 #### Our methodologies
 
-Manual analysis of a given protocol is always used. We also intend to apply model checking (such as in the tool SPIN http://spinroot.com/) to verify a property in temporal logics.
+Manual analysis of a given protocol is always used. We also intend to apply model checking (such as in the tool SPIN http://spinroot.com/) to verify invariants and properties specified in temporal logics.
 
 #### Other related interesting works
 
-
+To continue ...
