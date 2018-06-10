@@ -1,0 +1,45 @@
+verification result:
+spin -a  paxos2.pml
+gcc -DMEMLIM=1024 -O2 -DXUSAFE -DSAFETY -DNOCLAIM -w -o pan pan.c
+./pan -m10000 
+Pid: 5899
+
+(Spin Version 6.4.8 -- 2 March 2018)
+	+ Partial Order Reduction
+
+Full statespace search for:
+	never claim         	- (not selected)
+	assertion violations	+
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	+
+
+State-vector 300 byte, depth reached 49, errors: 0
+    20529 states, stored
+    52247 states, matched
+    72776 transitions (= stored+matched)
+    12608 atomic steps
+hash conflicts:        24 (resolved)
+
+Stats on memory usage (in Megabytes):
+    6.422	equivalent memory usage for states (stored*(State-vector + overhead))
+    5.758	actual memory usage for states (compression: 89.67%)
+         	state-vector as stored = 266 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.611	memory used for DFS stack (-m10000)
+  134.275	total actual memory usage
+
+
+unreached in proctype proposer
+	(0 of 69 states)
+unreached in proctype acceptor
+	paxos2.pml:112, state 25, "-end-"
+	(1 of 25 states)
+unreached in proctype learner
+	paxos2.pml:131, state 25, "-end-"
+	(1 of 25 states)
+unreached in init
+	(0 of 21 states)
+
+pan: elapsed time 0.13 seconds
+No errors found -- did you verify all claims?
+
