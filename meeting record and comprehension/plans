@@ -1,0 +1,8 @@
+Next meeting (14 Jun 2018)
+
+- Report the analysis on the code for the paper "Model Checking Paxos in Spin", focusing on how liveness fails in the PROMELA model.
+
+- Discuss two new papers:
+  Fast Paxos (Lamport 2005)
+  In Search of an Understandable Consensus Algorithm (Ongaro and Ousterhout 2014)
+  
