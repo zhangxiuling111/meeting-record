@@ -6,5 +6,10 @@ Next meeting (14 Jun 2018)
   * Fast Paxos (Lamport 2005)
   * In Search of an Understandable Consensus Algorithm (Ongaro and Ousterhout 2014)
   
-- Possible future directions:
+- Possible directions:
+  * A purely nondeterministic model for Raft/Zab (also lists sources of livelock/nonprogress)
   
+- Other thoughts
+  * probabilistic model on Paxos/Raft/Zab, by using e.g., in PRISM (http://www.prismmodelchecker.org)
+  * Byzantine models (with adversaries nodes)
+  * Compare the efficiencies between leader election model and Blockchain models (PoW, PoS)
