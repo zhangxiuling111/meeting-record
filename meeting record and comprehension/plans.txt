@@ -7,6 +7,7 @@ Next meeting (14 Jun 2018)
   * In Search of an Understandable Consensus Algorithm (Ongaro and Ousterhout 2014)
   
 - Possible directions:
+  * Modelling stronger assumptions that ensure progress properties for Paxos like algorithms
   * A purely nondeterministic model for Raft/Zab (also lists sources of livelock/nonprogress)
   
 - Other thoughts
