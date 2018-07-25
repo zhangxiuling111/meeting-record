@@ -26,3 +26,26 @@ b、概率因素：在一定范围内，随机决定timeout的值
 5、建一个完整的model,大概方向
 a、把所有已有算法的利弊讨论清楚，并在此基础上做出自己的优化。
 b、讨论相对其他算法paxos的优点，并实现paxos
+
+
+2018-6-14会议记录
+1、运行《paxos in spin》中的代码，看老师修改的部分（paxos2中的123行assertion,learn的value必须是proposed）,
+可以自己加入一些property,试着验证。
+2、raft
+a、在raft中，新旧leader交替的过程中，log不同，则要怎么办。paxos会形成活锁，raft 会不会活锁
+b、raft相当于paxos特化的场景，在很多地方都进行了特化。
+3、看leader election
+4、能否保证progress
+a、在leader已经被选出的情况下，会不会还可能有活锁
+b、在《fast paxos》的P9：如果保证能选出leader,则可保证progress
+why 在strong assumption(有cordinate或leader的情况下)，可以保证progress
+c、重新建模，滤去概率的那块（可能存在，但会无限接近与0），能不能保证没有活锁，保证progress（关于fast paxos 和  raft）
+
+
+
+
+
+
+
+
+
