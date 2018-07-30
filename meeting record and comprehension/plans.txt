@@ -21,6 +21,7 @@ Next meeting in Aug 2018 (to be determined)
   * Impossibility result of 1-crash consensus in asynchronous model (Fischer 1985) even if there exists time limit for message delivery
   * Raft is not asynchronous model (Otherwise its initial leader election will fail)
   * Consensus model classification: Lottery based (e.g., Raft) and voting based (e.g., Paxos)
+  * Review the progress discussion in fast paxos (?) 
   
 - May start looking at Byzantine failure model（共识算法中的拜占庭模型）
   * To start up: Wikipedia (https://en.wikipedia.org/wiki/Byzantine_fault_tolerance), 
