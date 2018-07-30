@@ -13,4 +13,18 @@ Next meeting (14 Jun 2018)
 - Other thoughts
   * probabilistic model on Paxos/Raft/Zab, by using e.g., in PRISM (http://www.prismmodelchecker.org)
   * Byzantine models (with adversaries nodes)
-  * Compare the efficiencies between leader election model and Blockchain models (PoW, PoS)
+  * Compare the efficiencies between leader election model and Blockchain models (PoW, PoS), which works for permission blockchains and public blockchains, respectively
+
+Next meeting in Aug 2018 (to be determined)
+
+- TO wrap up crash failure model (共识算法中的结点失败模型)
+  * Impossibility result of 1-crash consensus in asynchronous model (Fischer 1985) even if there exists time limit for message delivery
+  * Raft is not asynchronous model (Otherwise its initial leader election will fail)
+  * Consensus model classification: Lottery based (e.g., Raft) and voting based (e.g., Paxos)
+  
+- May start looking at Byzantine failure model（共识算法中的拜占庭模型）
+  * To start up: Wikipedia (https://en.wikipedia.org/wiki/Byzantine_fault_tolerance), Lamport's paper (The Byzantine Generals Problem
+July 5, 1982) and Fokkink's book (2017)
+  * Castro and Liskov's Practical Byzantine failure tolerance paper (OSDI 1999, https://wenku.baidu.com/view/3cc69308bb68a98271fefa38.html)，有一些有趣的中文讲解，比如：https://blog.csdn.net/bluecloudmatrix/article/details/39154739，还有 https://www.jianshu.com/p/fb5edf031afd
+  * To understand the difference of n >= 2t+1 in the crash failure model and n >= 3t+1 in the Byzantine failure model
+  
