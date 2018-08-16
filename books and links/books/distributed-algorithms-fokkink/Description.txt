@@ -1,0 +1,4 @@
+Preliminaries里面有很多基础的东西，象 transition system，还有Logic clock之类的，
+跟我们相关的部分还有I.12 crash failures，头两个定理的证明可以跳过，知道怎么回事情就可以了
+I. 12, 13, 14都比较重要，有空可以读读，对最后论文写作会有帮助的。
+作者用的样例是Bracha-Toueg，和Lamport的Paxos虽然不同，机理还是有点像的
