@@ -1,1 +1,5 @@
-https://github.com/dgryski/awesome-consensus
+1¡¢https://github.com/dgryski/awesome-consensus£¨asynchronous consensus£©
+2¡¢https://en.wikipedia.org/wiki/Byzantine_fault_tolerance( Lamport's paper (The Byzantine Generals Problem July 5, 1982) )
+3¡¢OSDI 1999, https://wenku.baidu.com/view/3cc69308bb68a98271fefa38.html(Castro and Liskov's Practical Byzantine failure tolerance paper )
+     https://blog.csdn.net/bluecloudmatrix/article/details/39154739
+      https://www.jianshu.com/p/fb5edf031afd(some Chinese explanations)
