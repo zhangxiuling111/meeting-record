@@ -9,6 +9,7 @@ byte leaderno = 0
 bool leaderselected = false;
 bool progress = false;
 bool proposed = false;
+bool amessage = false;
 
 
 chan coorproposal[COORDINATORS] = [10] of {byte,byte}        /*所有的proposer都先将proposal发送到该通道给coordinator*/
@@ -76,7 +77,7 @@ proctype coordinator(byte id){
 	byte accval;                      //acceptor接受的value
 	byte acccount[PROPOSERS];           //用来保存每个value的接收次数,最多有proposers个value
 	byte accvalue[ACCEPTORS];   //用来判断是否已经接收过来自某个acceptor的信息,若同一个idde acceptor接受多次，则不用反复计数
-	byte acceptorscount = 0, accmax = 0;//分别表示已经接收了value的acceptor的个数和被接受次数最多的value的次数，用来判断是否会发生冲突，因为如果所有的acceptor都已经接收了value，却没有任何一个value的接受次数达到quorum，则有冲突
+	byte acceptorscount = 0, accmax = 0;  //分别表示已经接收了value的acceptor的个数和被接受次数最多的value的次数，用来判断是否会发生冲突，因为如果所有的acceptor都已经接收了value，却没有任何一个value的接受次数达到quorum，则有冲突
 	byte maxvalue; //用来记录被接受次数最多的value值，即accmax对应的value
 	do
 	:: (precount < QUORUM && !progress) ->
@@ -135,9 +136,10 @@ proctype coordinator(byte id){
 
  	        } 
  	        fi
-	    ::(cval == 0) -> atomic{               //当所有的promise中都没有value值，则coordinator向acceptor发送any message；
+	    ::(cval == 0)&&amessage == false -> atomic{               //当所有的promise中都没有value值，则coordinator向acceptor发送any message；
 	  	  
      	       anymessage(id,crnd);
+     	       amessage = true;                        //只需发送一次anymessage
      	       byte j = 0;
      	       for(j : 0..(PROPOSERS-1)){       //发送any message之后，则proposer向acceptor直接发送proposal
 		   	   	    proaccept(j, crnd, j+1);
@@ -152,7 +154,7 @@ proctype coordinator(byte id){
         :: progress == true -> break;
         fi
 
-    :: precount >= QUORUM && accmax < QUORUM && acceptorscount < QUORUM ->           //对acceptor接受的value及各value的接收次数进行计数
+    :: (precount >= QUORUM && accmax < QUORUM) && acceptorscount < QUORUM ->           //对acceptor接受的value及各value的接收次数进行计数
     	if 
 	    ::  atomic{coordinatoracc[id] ? [accid,accrnd,accval] -> coordinatoracc[id] ? accid,accrnd,accval}  
 	    	if
@@ -160,7 +162,6 @@ proctype coordinator(byte id){
 	    		if
 	    		:: accvalue[accid] == 0 ->
 	    			d_step{
-	    				cval = 10;               //表示已经进入phase2b阶段，不用再发送anymessage
 	    				acccount[accval-1] ++;
 	    				accvalue[accid] = 1;
 	    				acceptorscount ++;
@@ -175,6 +176,23 @@ proctype coordinator(byte id){
 	    			}
 	    		:: accvalue[accid] == 1 -> skip;
 	    		fi
+	    	:: accrnd > crnd ->d_step{               //若接收的round值大于当前round值，则更新round值并初始化所有计数
+	    		byte i;
+		    	for(i : 0 .. QUORUM-1){
+		    		accvalue[i] = 0
+		    	}
+		    	i = 0;
+		    	byte j;
+		    	for(j : 0.. PROPOSERS-1){
+		    		acccount[j] = 0;
+		    	}
+		    	j = 0
+		    	accvalue[accid] =1;
+		    	acccount[accval-1] ++;
+		    	crnd = accrnd;
+		    	accmax = acccount[accval-1];
+	    		maxvalue = accval;
+	    	}
 	    	fi
 	    fi
 	:: precount >= QUORUM && accmax >= QUORUM /*&& acceptorscount < QUORUM */->       //acceptor对某个value的接受次数达到quorum
@@ -182,7 +200,7 @@ proctype coordinator(byte id){
 			learned ! crnd,accval;
 		}
 
-	:: precount >= QUORUM && accmax < QUORUM && acceptorscount >= QUORUM ->        //quorum中所有的acceptor都已经接收了value，却没有任何一个value的接受次数达到quorum，则有冲突
+	:: (precount >= QUORUM && accmax < QUORUM) && acceptorscount >= QUORUM ->        //quorum中所有的acceptor都已经接收了value，却没有任何一个value的接受次数达到quorum，则有冲突
 		//发生冲突，使用coordinated recovery,直接开始crnd+1 的phase 2a阶段，由coordinator直接向acceptor直接发送accept请求
 		atomic{
 			crnd ++;
@@ -246,14 +264,14 @@ proctype acceptor(byte id){
 	    if
 	    :: rnd == crnd ->                                   //和prepare阶段为同一轮
 		   	if 
-		  	:: val == -1 ->atomic{                          //acceptor若收到any message，则proposer向acceptor直接发送proposal
+		  	/*:: val == -1 ->atomic{                          //acceptor若收到any message，则proposer向acceptor直接发送proposal
 		   	    byte j;
 		   	   /* for(j : 0..(PROPOSERS-1)){
 		   	   	    proaccept(j, rnd, j+1);
 		   	    }
-		   	    j = 0;*/
+		   	    j = 0;g
 
-		    }
+		    }*/
 
 	        :: val != -1 -> 
 	        	if
@@ -266,7 +284,8 @@ proctype acceptor(byte id){
 	        		coordinatoracc[coorid] ! id, crnd, val;                                     
 	        	}
 	        	::else -> skip;                           //若已经接受过value，则忽略该value 
-	        	fi                 
+	        	fi 
+	        :: else -> skip;                
 	        fi
 	    :: rnd > crnd ->atomic{             //冲突恢复中直接开始的crnd+1轮
 	    		crnd = rnd;
@@ -319,6 +338,13 @@ proctype learner(){
 		    :: (crnd == accrnd && accvalue[accid] == 0) -> d_step{
 		    	accvalue[accid] = 1;
 		    	acccount[accval-1] ++;
+		    	if 
+	    		:: acccount[accval-1] > accmax ->atomic{
+	    			accmax = acccount[accval-1];
+	    			maxvalue = accval;
+
+	    		}
+	    		fi
 
 		    }
 		    :: (crnd != 0 && crnd < accrnd) -> d_step{               //若接收的round值大于当前round值，则更新round值并初始化所有计数
@@ -338,12 +364,12 @@ proctype learner(){
 		    }
 		    fi
 		fi
-    ::accmax >  QUORUM -> 
+    ::accmax >=  QUORUM -> 
              if
              ::progress == true ->break;
              :: else ->
              atomic{
-             	learned ! crnd,cval  ;          /*progress*/  //若同一value计数超过majority，则被learn
+             	learned ! crnd,maxvalue  ;          /*progress*/  //若同一value计数超过majority，则被learn
              	} 
              fi   
     //::progress == true ->break;                  
