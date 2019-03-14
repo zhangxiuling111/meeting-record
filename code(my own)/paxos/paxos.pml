@@ -1,5 +1,5 @@
 #define ACCEPTORS 3
-#define PROPOSERS 5
+#define PROPOSERS 2
 #define COORDINATORS 3
 #define MAJORITY 2
 
@@ -10,21 +10,21 @@ bool proposed = false;
 byte proposal[PROPOSERS];
 byte pcount = 0;
 
-chan coorproposal[COORDINATORS] = [50] of {byte,byte}        /*所有的proposer都先将proposal发送到该通道给coordinator*/
-chan prereply[COORDINATORS] = [20] of {byte};                 /*当acceptor的当前round大于coordinator的当前的round值时，acceptor提醒coordinator更大的round值*/
-chan accreply[COORDINATORS] = [20] of {byte};
-chan acceptorpre[ACCEPTORS] = [20] of {byte,byte};     /*acceptor用来接收prepare信息*/
-chan acceptoracc[ACCEPTORS] = [30] of {byte,byte, byte};     /*acceptor用来接收acceptor请求*/
-chan promise[COORDINATORS] = [50] of {byte, byte,byte,byte} ;           /*coordinator向acceptor加入round的请求后用来接收promise信息*/
-chan learnacc = [50] of {byte,byte,byte};                     /*acceptor接受一个value后发送到该通道用来提醒learner*/
-chan learned = [20] of {byte,byte};                          /*learner对同一个value计数超过majority，表示learn到一个value之后则向通道发送被接收的value*/
+chan coorproposal[COORDINATORS] = [10] of {byte,byte}        /*所有的proposer都先将proposal发送到该通道给coordinator*/
+chan prereply[COORDINATORS] = [10] of {byte};                 /*当acceptor的当前round大于coordinator的当前的round值时，acceptor提醒coordinator更大的round值*/
+chan accreply[COORDINATORS] = [10] of {byte};
+chan acceptorpre[ACCEPTORS] = [10] of {byte,byte};     /*acceptor用来接收prepare信息*/
+chan acceptoracc[ACCEPTORS] = [10] of {byte,byte, byte};     /*acceptor用来接收acceptor请求*/
+chan promise[COORDINATORS] = [10] of {byte, byte,byte,byte} ;           /*coordinator向acceptor加入round的请求后用来接收promise信息*/
+chan learnacc = [10] of {byte,byte,byte};                     /*acceptor接受一个value后发送到该通道用来提醒learner*/
+chan learned = [10] of {byte,byte};                          /*learner对同一个value计数超过majority，表示learn到一个value之后则向通道发送被接收的value*/
 
 ltl {<>(progress==1)};
 
 inline laccept(id,round, value){
 	byte i;
 	for(i : 0 .. (ACCEPTORS-1)){
-		acceptoracc[i]!id,round,value;                //向所有的acceptor发送accept请求
+  	acceptoracc[i]!id,round,value;
 	}
 	i = 0;
 }
@@ -56,7 +56,7 @@ proctype coordinator(byte id){
    do
    :: (count < MAJORITY && !progress) ->
 	    if 
-	    :: promise[id] ? [accid,accrnd,prornd,proval] -> promise[id] ? accid,accrnd,prornd,proval       //查看acceptor返回的promise信息
+	    ::  atomic{promise[id] ? [accid,accrnd,prornd,proval] -> promise[id] ? accid,accrnd,prornd,proval}       //查看acceptor返回的promise信息
 	        if
 	        :: accrnd !=0 && accrnd == crnd -> 
 		        if
@@ -117,6 +117,9 @@ proctype coordinator(byte id){
              cval = val;
      	     laccept(id,crnd,cval)
      	  }
+      :: cval != 0 && !progress ->atomic{
+      	 laccept(id,crnd,cval)
+      	}
       :: progress == true -> break;
       fi
              	                   
@@ -158,7 +161,7 @@ proctype acceptor(byte id){
 	do
 	::  (acceptorpre[id] ? [coorid,rnd] && !progress)->  acceptorpre[id] ? coorid,rnd;  //acceptor查看prepare请求
 		if					 
-	    :: rnd >= crnd ->atomic{
+	    :: rnd > crnd ->atomic{
 	    	crnd = rnd
 	        promise[coorid] ! id,crnd,hrnd,hval
 	    }
@@ -174,7 +177,7 @@ proctype acceptor(byte id){
 	    	hval = val;
         	learnacc ! id,crnd,val
 	    }
-	    :: rnd < crnd -> atomic{                                           //若acceptor已参与更大的round，则发送通知信息
+	    :: rnd < crnd -> atomic{                                                               //若acceptor已参与更大的round，则发送通知信息
 	    	accreply[coorid] ! crnd
 	    }
 	    :: else -> skip;
@@ -203,12 +206,12 @@ proctype learner(){
 
 		    }
 		    :: (crnd == accrnd && lcount[accid] == 0) -> d_step{
-		    	assert(accval==cval);             //在同一round中，接收到的value一定相同；
+		    	assert(accval==cval);                                                          //在同一round中，接收到的value一定相同；
 		    	lcount[accid] = 1;
 		    	countacc++;
 
 		    }
-		    :: (crnd != 0 && crnd < accrnd) -> d_step{               //若接收的round值大于当前round值，则更新round值并初始化所有计数
+		    :: (crnd != 0 && crnd < accrnd) -> d_step{                                           //若接收的round值大于当前round值，则更新round值并初始化所有计数
 		    	countacc = 1;
 		    	for(i : 0 .. ACCEPTORS-1){
 		    		lcount[i] = 0
@@ -231,7 +234,7 @@ proctype learner(){
     //::progress == true ->break;                  
     od
 }
-
+ 
 
 
 init
