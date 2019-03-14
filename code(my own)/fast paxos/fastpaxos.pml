@@ -11,15 +11,18 @@ bool progress = false;
 bool proposed = false;
 
 
-chan coorproposal[COORDINATORS] = [50] of {byte,byte}        /*所有的proposer都先将proposal发送到该通道给coordinator*/
-chan prereply[COORDINATORS] = [20] of {byte};                 /*当acceptor的当前round大于coordinator的当前的round值时，acceptor提醒coordinator更大的round值*/
-chan accreply[COORDINATORS] = [20] of {byte};
-chan acceptorpre[ACCEPTORS] = [20] of {byte,byte};     /*acceptor用来接收prepare信息*/
-chan acceptoracc[ACCEPTORS] = [30] of {byte,byte, short};     /*acceptor用来接收accept请求*/
-chan promise[COORDINATORS] = [50] of {byte, byte,byte,byte} ;           /*coordinator向acceptor加入round的请求后用来接收promise信息*/
-chan learnacc = [50] of {byte,byte,byte};                     /*acceptor接受一个value后发送到该通道用来提醒learner*/
-chan learned = [20] of {byte,byte};                          /*learner对同一个value计数超过majority，表示learn到一个value之后则向通道发送被接收的value*/
-chan coordinatoracc[COORDINATORS] = [20] of {byte, byte, byte}  //每当acceptor接收了一个value，在通知learner的同时也会将消息发送给coordinator，coordinator可以以此来判断是否会发生冲突。 
+chan coorproposal[COORDINATORS] = [10] of {byte,byte}        /*所有的proposer都先将proposal发送到该通道给coordinator*/
+chan prereply[COORDINATORS] = [10] of {byte};                 /*当acceptor的当前round大于coordinator的当前的round值时，acceptor提醒coordinator更大的round值*/
+chan accreply[COORDINATORS] = [10] of {byte};
+chan acceptorpre[ACCEPTORS] = [10] of {byte,byte};     /*acceptor用来接收prepare信息*/
+chan acceptoracc[ACCEPTORS] = [10] of {byte,byte, short};     /*acceptor用来接收accept请求*/
+chan promise[COORDINATORS] = [10] of {byte, byte,byte,byte} ;           /*coordinator向acceptor加入round的请求后用来接收promise信息*/
+chan learnacc = [10] of {byte,byte,byte};                     /*acceptor接受一个value后发送到该通道用来提醒learner*/
+chan learned = [10] of {byte,byte};                          /*learner对同一个value计数超过majority，表示learn到一个value之后则向通道发送被接收的value*/
+chan coordinatoracc[COORDINATORS] = [10] of {byte, byte, byte}  //每当acceptor接收了一个value，在通知learner的同时也会将消息发送给coordinator，coordinator可以以此来判断是否会发生冲突。 
+
+
+ltl {<>(progress==1)};
 
 
 inline cooraccept(id, round, value){
@@ -134,7 +137,12 @@ proctype coordinator(byte id){
  	        fi
 	    ::(cval == 0) -> atomic{               //当所有的promise中都没有value值，则coordinator向acceptor发送any message；
 	  	  
-     	       anymessage(id,crnd)
+     	       anymessage(id,crnd);
+     	       byte j = 0;
+     	       for(j : 0..(PROPOSERS-1)){       //发送any message之后，则proposer向acceptor直接发送proposal
+		   	   	    proaccept(j, crnd, j+1);
+		   	    }
+		   	    j = 0;
      	    }
         :: cval != 0 && !progress ->atomic{
         	cooraccept(id,crnd,cval)             //若promise中包含value值，则和classic paxos一样，coordinator向acceptor发送正常accept请求；
@@ -152,7 +160,7 @@ proctype coordinator(byte id){
 	    		if
 	    		:: accvalue[accid] == 0 ->
 	    			d_step{
-	    				cval = 10  //表示已经进入phase2b阶段，不用再发送anymessage
+	    				cval = 10;               //表示已经进入phase2b阶段，不用再发送anymessage
 	    				acccount[accval-1] ++;
 	    				accvalue[accid] = 1;
 	    				acceptorscount ++;
@@ -240,9 +248,10 @@ proctype acceptor(byte id){
 		   	if 
 		  	:: val == -1 ->atomic{                          //acceptor若收到any message，则proposer向acceptor直接发送proposal
 		   	    byte j;
-		   	    for(j : 0..(PROPOSERS-1)){
+		   	   /* for(j : 0..(PROPOSERS-1)){
 		   	   	    proaccept(j, rnd, j+1);
 		   	    }
+		   	    j = 0;*/
 
 		    }
 
