@@ -1,5 +1,5 @@
 #define ACCEPTORS 3
-#define PROPOSERS 2
+#define PROPOSERS 3
 #define COORDINATORS 3
 #define MAJORITY 2
 
